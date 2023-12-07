@@ -3,6 +3,8 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests;
+use App\Http\Controllers\PeopleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,7 +31,9 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
-    Route::get('/dashboard', function () {
+    Route::get('/criar-pessoa', function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
+
+    Route::post('criar-pessoa', [PeopleController::class, 'create'])->name('create.people')->middleware([HandlePrecognitiveRequests::class]);
 });
