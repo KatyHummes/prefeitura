@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ProtocolController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -31,9 +32,8 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
-    Route::get('/criar-pessoa', function () {
-        return Inertia::render('Dashboard');
-    })->name('dashboard');
-
-    Route::post('criar-pessoa', [PeopleController::class, 'create'])->name('create.people')->middleware([HandlePrecognitiveRequests::class]);
+    Route::get('/pessoa', [PeopleController::class, 'create'])->name('create.people');
+    Route::post('criar-pessoa', [PeopleController::class, 'store'])->name('store.people')->middleware([HandlePrecognitiveRequests::class]);
+    Route::get('criar-protocolo', [ProtocolController::class, 'create'])->name('create.protocol');
+    Route::post('criar-protocolo', [ProtocolController::class, 'store'])->name('store.protocol')->middleware([HandlePrecognitiveRequests::class]);
 });

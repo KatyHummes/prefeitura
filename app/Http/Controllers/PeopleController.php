@@ -5,10 +5,17 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Requests\PeopleRequest;
 use App\Models\People;
+use Inertia\Inertia;
 
 class PeopleController extends Controller
 {
-    public function create(PeopleRequest $request)
+
+    public function create()
+    {
+        return Inertia::render('People');
+    }
+
+    public function store(PeopleRequest $request)
     {
         $sex = $request->input('sex')['name'];
 
