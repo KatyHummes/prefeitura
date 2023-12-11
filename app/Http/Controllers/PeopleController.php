@@ -10,9 +10,12 @@ use Inertia\Inertia;
 class PeopleController extends Controller
 {
 
-    public function create()
+    public function index()
     {
-        return Inertia::render('People');
+        $peoples = People::all();
+        return Inertia::render('People', [
+            'peoples' => $peoples
+        ]);
     }
 
     public function store(PeopleRequest $request)

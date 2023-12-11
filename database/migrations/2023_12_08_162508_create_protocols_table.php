@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('people_id');
             $table->longText('description');
-            $table->integer('date');
+            $table->date('date');
             $table->date('term');
             $table->timestamps();
             $table->foreign('people_id')->references('id')->on('people')->onDelete('cascade');

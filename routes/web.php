@@ -32,8 +32,13 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
-    Route::get('/pessoa', [PeopleController::class, 'create'])->name('create.people');
+    Route::get('pessoas', [PeopleController::class, 'index'])->name('peoples');
     Route::post('criar-pessoa', [PeopleController::class, 'store'])->name('store.people')->middleware([HandlePrecognitiveRequests::class]);
-    Route::get('criar-protocolo', [ProtocolController::class, 'create'])->name('create.protocol');
+
+    Route::get('protocolos', [ProtocolController::class, 'index'])->name('protocols');
     Route::post('criar-protocolo', [ProtocolController::class, 'store'])->name('store.protocol')->middleware([HandlePrecognitiveRequests::class]);
 });
+
+Route::get('/dashboard', function () {
+    return Inertia::render('Dashboard');
+})->name('dashboard');

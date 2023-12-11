@@ -14,19 +14,19 @@ defineProps({
 
     <div>
         <div
-            class="relative sm:flex sm:justify-center sm:items-center min-h-screen bg-dots-darker bg-center bg-gray-100  selection:bg-red-500 selection:text-white">
+            class="relative sm:flex sm:justify-center sm:items-center min-h-screen bg-dots-darker bg-center bg-[var(--bluegray-100)]   selection:bg-[var(--red-500)] selection:text-[var(--text-color)]">
             <div v-if="canLogin" class="flex items-center justify-center p-6">
-                <Link v-if="$page.props.auth.user" :href="route('create.people')"
-                    class="font-semibold text-gray-50 hover:text-gray-500 dark:text-gray-400 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">
+                <Link v-if="$page.props.auth.user" :href="route('peoples')"
+                    class="font-semibold text-[var(--bluegray-50)] hover:text-[var(--bluegray-500) dark:text-[var(--bluegray-400)]   focus:outline focus:outline-2 focus:rounded-sm focus:outline-[var(--red-500)]">
                 Dashboard</Link>
 
                 <template v-else>
                     <Link :href="route('login')"
-                        class="font-semibold text-gray-50 hover:text-gray-500 dark:text-gray-400 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">
+                        class="font-semibold text-[var(--bluegray-50)] hover:text-[var(--bluegray-500) dark:text-[var(--bluegray-400)]  focus:outline focus:outline-2 focus:rounded-sm focus:outline-[var(--red-500)]">
                     Log in</Link>
 
                     <Link v-if="canRegister" :href="route('register')"
-                        class="ms-4 font-semibold text-gray-50 hover:text-gray-500 dark:text-gray-400 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">
+                        class="ms-4 font-semibold text-[var(--bluegray-50)] hover:text-[var(--bluegray-500)]  focus:outline focus:outline-2 focus:rounded-sm focus:outline-[var(--red-500)]">
                     Register</Link>
                 </template>
             </div>
@@ -36,7 +36,7 @@ defineProps({
 
 <style>
 .bg-dots-darker {
-    background-color: #b13ec8; 
+    background-color: #dc63f4; 
 }
 
 @media (prefers-color-scheme: dark) {
