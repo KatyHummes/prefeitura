@@ -63,4 +63,11 @@ class PeopleController extends Controller
             'complement' => $request->input('complement'),
         ]);
     }
+
+    public function delete($id)
+    {
+        
+        $people = People::findOrFail($id);
+        $people->delete();
+    }
 }

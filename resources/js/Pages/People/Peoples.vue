@@ -123,31 +123,33 @@ const getSeverity = (sex) => {
 };
 
 // confg da modal deletar pessoas
-const displayConfirmation = ref(false);
-const peopleToDelete = ref(null);
-
-const clearConfirmation = () => {
-    displayConfirmation.value = false;
-    peopleToDelete.value = null;
+const showDeleteUserConfirmModal = ref(false);
+const formDeleteUser = ref(null);
+const openDeleteUserConfirmModal = (id) => {
+    formDeleteUser.value = useForm('delete', `/excluir-pessoa/${id}`, {
+        id: id,
+    });
+    showDeleteUserConfirmModal.value = true;
+};
+const closeDeleteUserConfirmModal = () => {
+    showDeleteUserConfirmModal.value = false;
 };
 
-const confirmDeleteModal = (peopleId) => {
-    displayConfirmation.value = true;
-
-    peopleToDelete.value = peopleId;
-};
-
-const executeDelete = () => {
-
-    axios.delete(`/excluir-pessoa/${peopleToDelete.value}`)
-        .then(response => {
-            console.log(response.data);
-            clearConfirmation();
-        })
-        .catch(error => {
-            console.error(error);
-            clearConfirmation();
-        });
+const deleteUser = () => {
+    formDeleteUser.value.submit({
+        preserveScroll: true,
+        onSuccess: () => {
+            closeDeleteUserConfirmModal();
+            toast.success("Pessoa deletada com Sucesso!", {
+                position: 'top-right',
+            });
+        },
+        onError: () => {
+            toast.error("Erro ao deletar Pessoa!", {
+                position: 'top-right',
+            });
+        }
+    });
 };
 </script>
 
@@ -181,6 +183,8 @@ const executeDelete = () => {
                             </div>
                         </template>
                         <template #empty> Nenhuma pessoa encontrada! </template>
+                        <Column field="id" header="ID" style="min-width: 4rem" />
+                        
                         <Column field="name" header="Name" style="min-width: 12rem">
                             <template #body="{ data }">
                                 {{ data.name }}
@@ -245,7 +249,7 @@ const executeDelete = () => {
                         </Column>
                         <Column headerStyle="width:4rem" header="Delete" field="actions">
                             <template #body="{ data }">
-                                <button @click="confirmDeleteModal(data.id)">
+                                <button @click="openDeleteUserConfirmModal(data.id)">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                         stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -260,14 +264,14 @@ const executeDelete = () => {
         </div>
 
     </AppLayout>
-    <Modal :show="displayConfirmation" @close="clearConfirmation">
-        <form @submit.prevent="executeDelete(peopleToDelete)">
+    <Modal :show="showDeleteUserConfirmModal" @close="closeDeleteUserConfirmModal">
+        <form @submit.prevent="deleteUser()">
             <h2 class="flex items-center justify-center p-4 m-4 font-bold text-green-950">tem certeza que deseja excluir
                 esta Pessoa!</h2>
             <div class="flex justify-around">
                 <button type="submit" class="bg-red-500 text-white rounded-md m-4 px-2 py-1">Excluir </button>
                 <button type="button" class="bg-green-500 text-white rounded-md m-4 px-2 py-1"
-                    @click="clearConfirmation">cancelar</button>
+                    @click="closeDeleteUserConfirmModal">cancelar</button>
             </div>
         </form>
     </Modal>
