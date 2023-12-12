@@ -14,7 +14,7 @@ class ProtocolController extends Controller
     {
         $peoples = People::get(['id', 'name']);
         $protocols = Protocol::with('people')->get();
-        return Inertia::render('Protocol', [
+        return Inertia::render('Protocol/Protocols', [
             'peoples' => $peoples,
             'protocols' => $protocols,
         ]);

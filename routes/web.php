@@ -32,13 +32,14 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
+    // Pessoas:
     Route::get('pessoas', [PeopleController::class, 'index'])->name('peoples');
     Route::post('criar-pessoa', [PeopleController::class, 'store'])->name('store.people')->middleware([HandlePrecognitiveRequests::class]);
+    Route::get('editar-pessoa/{id}', [PeopleController::class, 'edit'])->name('people.edit');
+    Route::put('atualizar-pessoa/{id}', [PeopleController::class, 'update'])->name('people.update')->middleware([HandlePrecognitiveRequests::class]);
+    Route::delete('excluir-pessoa/{id}', [PeopleController::class, 'delete'])->name('people.delete');
 
+    // Protocolos:
     Route::get('protocolos', [ProtocolController::class, 'index'])->name('protocols');
     Route::post('criar-protocolo', [ProtocolController::class, 'store'])->name('store.protocol')->middleware([HandlePrecognitiveRequests::class]);
 });
-
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->name('dashboard');
