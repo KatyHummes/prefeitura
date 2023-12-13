@@ -14,7 +14,7 @@ class ProtocolController extends Controller
     {
         $peoples = People::get(['id', 'name']);
         $protocols = Protocol::with('people')->get();
-        return Inertia::render('Protocol/Protocols', [
+        return Inertia::render('Protocols', [
             'peoples' => $peoples,
             'protocols' => $protocols,
         ]);
@@ -31,5 +31,11 @@ class ProtocolController extends Controller
             'term' =>  $termDate,
             'people_id' => $request->input('people_id')['id']
         ]);
+    }
+
+    public function delete($id)
+    {
+        $protocol = Protocol::findOrFail($id);
+        $protocol->delete();
     }
 }

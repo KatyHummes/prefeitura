@@ -59,6 +59,7 @@ const protocols = computed(() => {
     }));
 });
 
+// filtros da tabela
 const filters = ref();
 
 const initFilters = () => {
@@ -85,6 +86,7 @@ const formatDate = (value) => {
     });
 };
 
+// confg. do calendario data e prazo
 let today = new Date();
 let month = today.getMonth();
 let year = today.getFullYear();
@@ -93,8 +95,6 @@ let prevYear = (prevMonth === 11) ? year - 1 : year;
 let nextMonth = (month === 11) ? 0 : month + 1;
 let nextYear = (nextMonth === 0) ? year + 1 : year;
 
-const date = ref();
-const term = ref();
 const currentDate = new Date();
 const minDateForDate = ref(new Date());
 const maxDateForDate = ref(new Date());
@@ -108,6 +108,36 @@ maxDateForDate.value.setFullYear(nextYear);
 
 minDateForTerm.value.setFullYear(year); // Definir o mínimo para prazo começando a partir de hoje
 maxDateForTerm.value.setFullYear(nextYear);
+
+// confg da modal deletar protocolo
+const showDeleteUserConfirmModal = ref(false);
+const formDeleteUser = ref(null);
+const openDeleteUserConfirmModal = (id) => {
+    formDeleteUser.value = useForm('delete', `/excluir-protocolo/${id}`, {
+        id: id,
+    });
+    showDeleteUserConfirmModal.value = true;
+};
+const closeDeleteUserConfirmModal = () => {
+    showDeleteUserConfirmModal.value = false;
+};
+
+const deleteUser = () => {
+    formDeleteUser.value.submit({
+        preserveScroll: true,
+        onSuccess: () => {
+            closeDeleteUserConfirmModal();
+            toast.success("Protocolo deletado com Sucesso!", {
+                position: 'top-right',
+            });
+        },
+        onError: () => {
+            toast.error("Erro ao deletar Protocolo!", {
+                position: 'top-right',
+            });
+        }
+    });
+};
 
 </script>
 
@@ -153,7 +183,6 @@ maxDateForTerm.value.setFullYear(nextYear);
                                         placeholder="Pesquise pela Descrição" />
                                 </template>
                             </Column>
-
                             <Column field="description" header="Descrição" style="min-width: 12rem">
                                 <template #body="{ data }">
                                     {{ data.description }}
@@ -181,12 +210,34 @@ maxDateForTerm.value.setFullYear(nextYear);
                                         :manualInput="false" />
                                 </template>
                             </Column>
+                            <Column headerStyle="width:4rem" header="Deletar" field="actions">
+                                <template #body="{ data }">
+                                    <button @click="openDeleteUserConfirmModal(data.id)">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                            stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                        </svg>
+                                    </button>
+                                </template>
+                            </Column>
                         </DataTable>
                     </div>
                 </div>
             </div>
         </div>
     </AppLayout>
+    <Modal :show="showDeleteUserConfirmModal" @close="closeDeleteUserConfirmModal">
+        <form @submit.prevent="deleteUser()">
+            <h2 class="flex items-center justify-center p-4 m-4 font-bold text-green-950">tem certeza que deseja excluir
+                este Protocolo!</h2>
+            <div class="flex justify-around">
+                <button type="submit" class="bg-red-500 text-white rounded-md m-4 px-2 py-1">Excluir </button>
+                <button type="button" class="bg-green-500 text-white rounded-md m-4 px-2 py-1"
+                    @click="closeDeleteUserConfirmModal">cancelar</button>
+            </div>
+        </form>
+    </Modal>
     <Modal :show="openingModal" @close="closeModal" :max-width="'4xl'">
         <div class="flex items-start justify-between p-4 border-b rounded-t ">
             <h3 class="text-xl font-semibold text-gray-900 ">
