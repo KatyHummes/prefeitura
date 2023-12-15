@@ -319,7 +319,7 @@ const closeThemeModal = () => {
                         </ResponsiveNavLink>
                     </div>
                     <div class="pt-2 pb-3 space-y-1">
-                        <ResponsiveNavLink :href="route('protocols')" :active="route().current('protocols')">
+                        <ResponsiveNavLink @click="openThemeModal">
                             Temes
                         </ResponsiveNavLink>
                     </div>

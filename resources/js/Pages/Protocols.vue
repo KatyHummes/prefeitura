@@ -102,7 +102,7 @@ const maxDateForDate = ref(new Date());
 const minDateForTerm = ref(new Date());
 const maxDateForTerm = ref(new Date());
 
-minDateForDate.value.setDate(currentDate.getDate() - 60);
+minDateForDate.value.setDate(currentDate.getDate() - 90);
 minDateForDate.value.setFullYear(prevYear); // Definir o mínimo para datas retroativas
 maxDateForDate.value.setFullYear(nextYear);
 minDateForTerm.value.setFullYear(year); // Definir o mínimo para prazo começando a partir de hoje
@@ -173,24 +173,17 @@ const updateProtocol = () => {
         preserveScroll: true,
         onSuccess: () => {
             closeUpdateProtocolModal();
-            toast.add({
-                severity: 'success',
-                summary: 'Sucesso',
-                detail: 'Usuário atualizado com Sucesso!',
-                life: 3000
+            toast.success("Protocolo atualizado com Sucesso!", {
+                position: 'top-right',
             });
         },
         onError: () => {
-            toast.add({
-                severity: 'error',
-                summary: 'Erro',
-                detail: 'Erro ao atualizar o usuário.',
-                life: 3000
+            toast.error("Erro ao atualizar Protocolo!", {
+                position: 'top-right',
             });
         }
     });
 };
-
 </script>
 
 <template>
@@ -205,28 +198,28 @@ const updateProtocol = () => {
             <div class="w-full sm:px-6 lg:px-8">
                 <div class="bg-[var(--surface-50)] overflow-hidden shadow-xl sm:rounded-lg">
 
-                    <div class="flex flex-col justify-center items-center">
+                   
 
                         <div class="flex flex-col justify-center items-center">
                             <button
                                 class="bg-[var(--surface-0)] text-[var(--text-color)] hover:text-[var(--primary-color)] flex justify-center items-center m-8 py-3 px-2 font-bold rounded-lg"
-                                @click="openCreatePeopleModal">Criar Protocolo</button>
+                                @click="openModal">Criar Protocolo</button>
                         </div>
                         <DataTable v-model:filters="filters" :value="protocols" paginator showGridlines :rows="10"
                             dataKey="id" filterDisplay="menu"
-                            :globalFilterFields="['people', 'date', 'term', 'description']">
+                            :globalFilterFields="['people', 'date', 'term', 'description']" removableSort an>
                             <template #header>
                                 <div class="flex justify-between">
-                                    <Button type="button" icon="pi pi-filter-slash" label="Clear" outlined
+                                    <Button type="button" class="" label="Limpar" outlined
                                         @click="clearFilter()" />
-                                    <span class="p-input-icon-left">
-                                        <i class="pi pi-search" />
+                                    <span >
                                         <InputText v-model="filters['global'].value"
                                             placeholder="Pesquise por Palavra chave" />
                                     </span>
                                 </div>
                             </template>
                             <template #empty> Nenhum protocolo encontrado! </template>
+                            <Column field="id" header="ID" style="min-width: 4rem" sortable />
                             <Column field="people" header="Pessoa" style="min-width: 12rem">
                                 <template #body="{ data }">
                                     {{ data.people }}
@@ -245,13 +238,14 @@ const updateProtocol = () => {
                                         placeholder="Pesquise pela Descrição" />
                                 </template>
                             </Column>
-                            <Column header="Data" dataType="date" filterField="date" style="min-width: 10rem">
+                            
+                            <Column header="Data" filterField="term" dataType="date" style="min-width: 10rem">
                                 <template #body="{ data }">
                                     {{ formatDate(data.date) }}
                                 </template>
                                 <template #filter="{ filterModel }">
-                                    <Calendar v-model="filterModel.value" type="text" class="p-column-filter"
-                                        placeholder="Pesquise pela Descrição" dateFormat="dd/mm/yy" />
+                                    <Calendar v-model="filterModel.value" dateFormat="dd/mm/yy" placeholder="dd/mm/yyyy"
+                                        :manualInput="false" />
                                 </template>
                             </Column>
                             <Column header="Prazo" filterField="term" dataType="date" style="min-width: 10rem">
@@ -263,7 +257,7 @@ const updateProtocol = () => {
                                         :manualInput="false" />
                                 </template>
                             </Column>
-                            <Column header="Editar" field="actions">
+                            <Column header="Ações" field="actions">
                                 <template #body="{ data }">
                                     <div class="flex justify-around">
                                         <button @click="openUpdateProtocolModal(data)">
@@ -284,7 +278,7 @@ const updateProtocol = () => {
                                 </template>
                             </Column>
                         </DataTable>
-                    </div>
+                    
                 </div>
             </div>
         </div>
@@ -350,7 +344,7 @@ const updateProtocol = () => {
 
                     <div class="form-control w-full ">
                         <label class="label">
-                            <span class="label-text">Selecione o Demandente:* {{ formUpdateProtocol.people }}</span>
+                            <span class="label-text">Selecione o Demandente:* </span>
                         </label>
                         <Dropdown v-model="formUpdateProtocol.people" :options="peoples" optionLabel="name"
                             placeholder="Clique para Selecionar" @change="formUpdateProtocol.validate('people')"
@@ -373,6 +367,16 @@ const updateProtocol = () => {
                         </span>
                     </div>
 
+                </div>
+                <div class="flex justify-around mt-6">
+                    <Button @click="closeUpdateProtocolModal" type="button"
+                        class="inline-flex items-center px-4 py-2 bg-[var(--red-500)] rounded-md font-semibold text-xs text-[var(--surface-f)] uppercase tracking-widest shadow-sm hover:bg-[var(--red-700)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
+                        Cancelar
+                    </Button>
+                    <Button type="submit"
+                        class="inline-flex items-center px-4 py-2 bg-[var(--green-500)] rounded-md font-semibold text-xs text-[var(--surface-f)] uppercase tracking-widest shadow-sm hover:bg-[var(--green-700)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
+                        Salvar
+                    </Button>
                 </div>
             </form>
         </div>
@@ -448,7 +452,7 @@ const updateProtocol = () => {
 
                 </div>
                 <div class="flex justify-around mt-4">
-                    <Button @click="closeModal"
+                    <Button @click="closeModal" type="button"
                         class="inline-flex items-center px-4 py-2 bg-[var(--red-500)] border border-gray-300 rounded-md font-semibold text-xs text-white uppercase tracking-widest shadow-sm hover:bg-[var(--red-700)] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
                         Cancelar
                     </Button>

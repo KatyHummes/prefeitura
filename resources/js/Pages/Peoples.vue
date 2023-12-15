@@ -227,15 +227,16 @@ const updatePeople = () => {
                         filterDisplay="menu" :globalFilterFields="['name', 'cpf', 'birth', 'sex']" removableSort>
                         <template #header>
                             <div class="flex justify-between">
-                                <Button type="button" icon="pi pi-filter-slash" label="Limpar" outlined
+                                <Button type="button" icon="" label="Limpar" outlined
                                     @click="clearFilter()" />
-                                <span class="p-input-icon-left">
-                                    <i class="pi pi-search" />
+                                <span>
+                                    <i />
                                     <InputText v-model="filters['global'].value" placeholder="Pesquise por Palavra chave" />
                                 </span>
                             </div>
                         </template>
                         <template #empty> Nenhuma pessoa encontrada! </template>
+
                         <Column field="id" header="ID" style="min-width: 4rem" sortable />
 
                         <Column field="name" header="Name" style="min-width: 12rem">
@@ -247,6 +248,7 @@ const updatePeople = () => {
                                     placeholder="Pesquise o Nome" />
                             </template>
                         </Column>
+
                         <Column header="Nascimento" filterField="birth" dataType="date" style="min-width: 10rem">
                             <template #body="{ data }">
                                 {{ formatDate(data.birth) }}
@@ -256,22 +258,19 @@ const updatePeople = () => {
                                     :manualInput="false" />
                             </template>
                         </Column>
+
                         <Column field="cpf" header="CPF" style="min-width: 12rem">
                             <template #body="{ data }">
                                 {{ formatCPF(data.cpf) }}
                             </template>
                             <template #filter="{ filterModel }">
 
-                                <!-- @input="filterModel.value = $event.target.value.replace(/\D/g, '')" -->
-
-                                <!-- <InputText v-model="filterModel.value" type="text" class="p-column-filter"
-                                        placeholder="Pesquise o CPF" /> -->
-
                                 <InputMask v-model="filterModel.value" mask="999.999.999-99" class="p-column-filter"
                                     placeholder="Pesquise o CPF" :unmask=true />
 
                             </template>
                         </Column>
+
                         <Column header="Sexo" field="sex" :filterMenuStyle="{ width: '14rem' }" style="min-width: 12rem">
                             <template #body="{ data }">
                                 <Tag :value="data.sex" :style="getSeverity(data.sex)" />
@@ -286,6 +285,7 @@ const updatePeople = () => {
                                 </Dropdown>
                             </template>
                         </Column>
+
                         <Column headerStyle="width:4rem" header="Ações" field="actions">
                             <template #body="{ data }">
                                 <div class="flex justify-around">
@@ -306,6 +306,7 @@ const updatePeople = () => {
                                 </div>
                             </template>
                         </Column>
+
                     </DataTable>
                 </div>
             </div>
@@ -439,13 +440,13 @@ const updatePeople = () => {
 
 
                 </div>
-                <div class="flex justify-around mt-4">
+                <div class="flex justify-around mt-6">
                     <Button type="button"
-                        class="inline-flex items-center px-4 py-2 bg-[var(--red-500)] rounded-md font-semibold text-xs text-[var(--text-color)] uppercase tracking-widest shadow-sm hover:bg-[var(--red-700)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
+                        class="inline-flex items-center px-4 py-2 bg-[var(--red-500)] rounded-md font-semibold text-xs text-[var(--surface-f)] uppercase tracking-widest shadow-sm hover:bg-[var(--red-700)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
                         Cancelar
                     </Button>
                     <Button type="submit"
-                        class="inline-flex items-center px-4 py-2 bg-[var(--green-500)] rounded-md font-semibold text-xs text-[var(--text-color)] uppercase tracking-widest shadow-sm hover:bg-[var(--green-700)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
+                        class="inline-flex items-center px-4 py-2 bg-[var(--green-500)] rounded-md font-semibold text-xs text-[var(--surface-f)] uppercase tracking-widest shadow-sm hover:bg-[var(--green-700)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
                         Salvar
                     </Button>
                 </div>
@@ -566,11 +567,11 @@ const updatePeople = () => {
                 </div>
                 <div class="flex justify-around mt-4">
                     <Button @click="closeCreatePeopleModal"
-                        class="inline-flex items-center px-4 py-2 bg-[var(--red-500)] border-[var(--gray-300)] rounded-md font-semibold text-xs text-[var(--text-color)] uppercase tracking-widest shadow-sm hover:bg-[var(--red-700)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
+                        class="inline-flex items-center px-4 py-2 bg-[var(--red-500)] border-[var(--surface-f)] rounded-md font-semibold text-xs text-[var(--surface-f)] uppercase tracking-widest shadow-sm hover:bg-[var(--red-700)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
                         Cancelar
                     </Button>
                     <Button type="submit"
-                        class="inline-flex items-center px-4 py-2 bg-[var(--green-500)] border border-[var(--gray-300)] rounded-md font-semibold text-xs text-[var(--text-color)] uppercase tracking-widest shadow-sm hover:bg-[var(--green-700)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
+                        class="inline-flex items-center px-4 py-2 bg-[var(--green-500)] border border-[var(--surface-f)] rounded-md font-semibold text-xs text-[var(--surface-f)] uppercase tracking-widest shadow-sm hover:bg-[var(--green-700)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
                         Salvar
                     </Button>
                 </div>
