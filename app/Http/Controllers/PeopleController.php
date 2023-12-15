@@ -13,7 +13,7 @@ class PeopleController extends Controller
     public function index()
     {
         $peoples = People::all();
-        return Inertia::render('People/Peoples', [
+        return Inertia::render('Peoples', [
             'peoples' => $peoples
         ]);
     }
@@ -36,16 +36,6 @@ class PeopleController extends Controller
         ]);
     }
 
-    public function edit($id)
-    {
-        $people = People::findOrFail($id);
-
-        return Inertia::render('People/Edit', [
-            'people' =>  $people
-        ]);
-    }
-
-
     public function update(PeopleRequest $request, $id)
     {
         $people = People::findOrFail($id);
@@ -55,7 +45,7 @@ class PeopleController extends Controller
             'name' => $request->input('name'),
             'birth' => $birthDate,
             'cpf' => $request->input('cpf'),
-            'sex' => $request->input('sex'),
+            'sex' => $request->input('sex')['name'],
             'city' => $request->input('city'),
             'neighborhood' => $request->input('neighborhood'),
             'street' => $request->input('street'),

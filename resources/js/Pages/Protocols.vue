@@ -145,18 +145,7 @@ const deleteProtocol = () => {
 const protocol = ref();
 const showUpdateProtocolModal = ref(false);
 const formUpdateProtocol = ref(null);
-// const openUpdateProtocolModal = (protocolData) => {
-//     protocol.value = protocolData;
-//     console.log(protocolData)
-//     formUpdateProtocol.value = useForm('put', `/update-protocol/${protocolData.id}`, {
-//         id: protocolData.id,
-//         people: protocolData.people,
-//         description: protocolData.description,
-//         date: protocolData.date,
-//         term: protocolData.term,
-//     });
-//     showUpdateProtocolModal.value = true;
-// };
+
 
 const openUpdateProtocolModal = (protocolData) => {
     protocol.value = protocolData;
@@ -165,9 +154,9 @@ const openUpdateProtocolModal = (protocolData) => {
     // Encontrar o objeto do usuário correspondente no array 'peoples'
     const selectedPeople = props.peoples.find(p => p.name === protocolData.people);
 
-    formUpdateProtocol.value = useForm('put', `/update-protocol/${protocolData.id}`, {
+    formUpdateProtocol.value = useForm('put', `/atualizar-protocolo/${protocolData.id}`, {
         id: protocolData.id,
-        people: selectedPeople || '', // Use o objeto completo ou um valor padrão se não for encontrado
+        people: selectedPeople || '', // Se não encontrar, atribuir uma string vazia
         description: protocolData.description,
         date: protocolData.date,
         term: protocolData.term,
@@ -224,7 +213,8 @@ const updateProtocol = () => {
                                 @click="openCreatePeopleModal">Criar Protocolo</button>
                         </div>
                         <DataTable v-model:filters="filters" :value="protocols" paginator showGridlines :rows="10"
-                            dataKey="id" filterDisplay="menu" :globalFilterFields="['people', 'date', 'term', 'description']">
+                            dataKey="id" filterDisplay="menu"
+                            :globalFilterFields="['people', 'date', 'term', 'description']">
                             <template #header>
                                 <div class="flex justify-between">
                                     <Button type="button" icon="pi pi-filter-slash" label="Clear" outlined
@@ -277,22 +267,22 @@ const updateProtocol = () => {
                                 <template #body="{ data }">
                                     <div class="flex justify-around">
                                         <button @click="openUpdateProtocolModal(data)">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                            stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-                                        </svg>
-                                    </button>
-                                    <button @click="openDeleteProtocolConfirmModal(data.id)">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                            stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                                        </svg>
-                                    </button>
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                                            </svg>
+                                        </button>
+                                        <button @click="openDeleteProtocolConfirmModal(data.id)">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                            </svg>
+                                        </button>
                                     </div>
                                 </template>
-                            </Column>                
+                            </Column>
                         </DataTable>
                     </div>
                 </div>
@@ -302,7 +292,8 @@ const updateProtocol = () => {
     <!-- modal de deletar protocolo   -->
     <Modal :show="showDeleteProtocolConfirmModal" @close="closeDeleteProtocolConfirmModal">
         <form @submit.prevent="deleteProtocol()" class="bg-[var(--surface-50)]">
-            <h2 class="flex items-center justify-center p-4 m-4 font-bold text-[var(--text-color)]">Tem certeza que deseja excluir
+            <h2 class="flex items-center justify-center p-4 m-4 font-bold text-[var(--text-color)]">Tem certeza que deseja
+                excluir
                 esta Pessoa?</h2>
             <div class="flex justify-around">
                 <button type="button"
@@ -336,7 +327,8 @@ const updateProtocol = () => {
                         <label class="label">
                             <span class="label-text">Descrição:*</span>
                         </label>
-                        <Textarea rows="2" cols="30" placeholder="Escreva a Descrição" v-model="formUpdateProtocol.description"
+                        <Textarea rows="2" cols="30" placeholder="Escreva a Descrição"
+                            v-model="formUpdateProtocol.description"
                             class="w-full md:w-14rem rounded-md shadow-sm :focus:border-[var(--primary-color)]"
                             @change="formUpdateProtocol.validate('description')" />
                         <span v-if="formUpdateProtocol.invalid('description')" class="text-base text-[var(--red-500)]">
@@ -374,8 +366,7 @@ const updateProtocol = () => {
                             <span class="label-text">Prazo:*</span>
                         </label>
                         <Calendar v-model="formUpdateProtocol.term" dateFormat="dd/mm/yy" showIcon :minDate="currentDate"
-                            :maxDate="maxDateForTerm"
-                            class="w-full md:w-14rem rounded-md shadow-sm"
+                            :maxDate="maxDateForTerm" class="w-full md:w-14rem rounded-md shadow-sm"
                             @change="formUpdateProtocol.validate('term')" />
                         <span v-if="formUpdateProtocol.invalid('term')" class="text-base text-[var(--red-500)]">
                             {{ formUpdateProtocol.errors.term }}
@@ -385,7 +376,6 @@ const updateProtocol = () => {
                 </div>
             </form>
         </div>
-
     </Modal>
     <!-- modal de criar protocolo   -->
     <Modal :show="openingModal" @close="closeModal" :max-width="'4xl'">
