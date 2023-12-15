@@ -42,5 +42,6 @@ Route::middleware([
     // Protocolos:
     Route::get('protocolos', [ProtocolController::class, 'index'])->name('protocols');
     Route::post('criar-protocolo', [ProtocolController::class, 'store'])->name('store.protocol')->middleware([HandlePrecognitiveRequests::class]);
+    Route::put('atualizar-protocolo/{id}', [ProtocolController::class, 'update'])->name('protocol.update')->middleware([HandlePrecognitiveRequests::class]);
     Route::delete('excluir-protocolo/{id}', [ProtocolController::class, 'delete'])->name('protocol.delete');
 });

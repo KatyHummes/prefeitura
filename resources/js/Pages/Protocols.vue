@@ -21,6 +21,7 @@ const props = defineProps({
     protocols: Array,
 });
 
+// modal criar protocolo
 const openingModal = ref(false);
 
 const openModal = () => {
@@ -53,7 +54,7 @@ const protocols = computed(() => {
     return props.protocols.map(protocol => ({
         id: protocol.id,
         people: protocol.people.name,
-        date: protocol.date,
+        date: new Date(protocol.date),
         description: protocol.description,
         term: new Date(protocol.term),
     }));
@@ -102,31 +103,32 @@ const minDateForTerm = ref(new Date());
 const maxDateForTerm = ref(new Date());
 
 minDateForDate.value.setDate(currentDate.getDate() - 60);
-
 minDateForDate.value.setFullYear(prevYear); // Definir o mínimo para datas retroativas
 maxDateForDate.value.setFullYear(nextYear);
-
 minDateForTerm.value.setFullYear(year); // Definir o mínimo para prazo começando a partir de hoje
 maxDateForTerm.value.setFullYear(nextYear);
 
 // confg da modal deletar protocolo
-const showDeleteUserConfirmModal = ref(false);
-const formDeleteUser = ref(null);
-const openDeleteUserConfirmModal = (id) => {
-    formDeleteUser.value = useForm('delete', `/excluir-protocolo/${id}`, {
+const showDeleteProtocolConfirmModal = ref(false);
+
+const formDeleteProtocol = ref(null);
+
+const openDeleteProtocolConfirmModal = (id) => {
+    formDeleteProtocol.value = useForm('delete', `/excluir-protocolo/${id}`, {
         id: id,
     });
-    showDeleteUserConfirmModal.value = true;
-};
-const closeDeleteUserConfirmModal = () => {
-    showDeleteUserConfirmModal.value = false;
+    showDeleteProtocolConfirmModal.value = true;
 };
 
-const deleteUser = () => {
-    formDeleteUser.value.submit({
+const closeDeleteProtocolConfirmModal = () => {
+    showDeleteProtocolConfirmModal.value = false;
+};
+
+const deleteProtocol = () => {
+    formDeleteProtocol.value.submit({
         preserveScroll: true,
         onSuccess: () => {
-            closeDeleteUserConfirmModal();
+            closeDeleteProtocolConfirmModal();
             toast.success("Protocolo deletado com Sucesso!", {
                 position: 'top-right',
             });
@@ -134,6 +136,67 @@ const deleteUser = () => {
         onError: () => {
             toast.error("Erro ao deletar Protocolo!", {
                 position: 'top-right',
+            });
+        }
+    });
+};
+
+// lógica da modal editar protocolo
+const protocol = ref();
+const showUpdateProtocolModal = ref(false);
+const formUpdateProtocol = ref(null);
+// const openUpdateProtocolModal = (protocolData) => {
+//     protocol.value = protocolData;
+//     console.log(protocolData)
+//     formUpdateProtocol.value = useForm('put', `/update-protocol/${protocolData.id}`, {
+//         id: protocolData.id,
+//         people: protocolData.people,
+//         description: protocolData.description,
+//         date: protocolData.date,
+//         term: protocolData.term,
+//     });
+//     showUpdateProtocolModal.value = true;
+// };
+
+const openUpdateProtocolModal = (protocolData) => {
+    protocol.value = protocolData;
+    console.log(protocolData);
+
+    // Encontrar o objeto do usuário correspondente no array 'peoples'
+    const selectedPeople = props.peoples.find(p => p.name === protocolData.people);
+
+    formUpdateProtocol.value = useForm('put', `/update-protocol/${protocolData.id}`, {
+        id: protocolData.id,
+        people: selectedPeople || '', // Use o objeto completo ou um valor padrão se não for encontrado
+        description: protocolData.description,
+        date: protocolData.date,
+        term: protocolData.term,
+    });
+    showUpdateProtocolModal.value = true;
+};
+
+const closeUpdateProtocolModal = () => {
+    showUpdateProtocolModal.value = false;
+};
+
+const updateProtocol = () => {
+    formUpdateProtocol.value.submit({
+        preserveScroll: true,
+        onSuccess: () => {
+            closeUpdateProtocolModal();
+            toast.add({
+                severity: 'success',
+                summary: 'Sucesso',
+                detail: 'Usuário atualizado com Sucesso!',
+                life: 3000
+            });
+        },
+        onError: () => {
+            toast.add({
+                severity: 'error',
+                summary: 'Erro',
+                detail: 'Erro ao atualizar o usuário.',
+                life: 3000
             });
         }
     });
@@ -161,7 +224,7 @@ const deleteUser = () => {
                                 @click="openCreatePeopleModal">Criar Protocolo</button>
                         </div>
                         <DataTable v-model:filters="filters" :value="protocols" paginator showGridlines :rows="10"
-                            dataKey="id" filterDisplay="menu" :globalFilterFields="['people', 'number', 'description']">
+                            dataKey="id" filterDisplay="menu" :globalFilterFields="['people', 'date', 'term', 'description']">
                             <template #header>
                                 <div class="flex justify-between">
                                     <Button type="button" icon="pi pi-filter-slash" label="Clear" outlined
@@ -192,13 +255,13 @@ const deleteUser = () => {
                                         placeholder="Pesquise pela Descrição" />
                                 </template>
                             </Column>
-                            <Column field="date" header="Data" style="min-width: 12rem">
+                            <Column header="Data" dataType="date" filterField="date" style="min-width: 10rem">
                                 <template #body="{ data }">
-                                    {{ data.date }}
+                                    {{ formatDate(data.date) }}
                                 </template>
                                 <template #filter="{ filterModel }">
-                                    <InputText v-model="filterModel.value" type="text" class="p-column-filter"
-                                        placeholder="Pesquise pela Descrição" />
+                                    <Calendar v-model="filterModel.value" type="text" class="p-column-filter"
+                                        placeholder="Pesquise pela Descrição" dateFormat="dd/mm/yy" />
                                 </template>
                             </Column>
                             <Column header="Prazo" filterField="term" dataType="date" style="min-width: 10rem">
@@ -210,41 +273,128 @@ const deleteUser = () => {
                                         :manualInput="false" />
                                 </template>
                             </Column>
-                            <Column headerStyle="width:4rem" header="Deletar" field="actions">
+                            <Column header="Editar" field="actions">
                                 <template #body="{ data }">
-                                    <button @click="openDeleteUserConfirmModal(data.id)">
+                                    <div class="flex justify-around">
+                                        <button @click="openUpdateProtocolModal(data)">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                            stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                                        </svg>
+                                    </button>
+                                    <button @click="openDeleteProtocolConfirmModal(data.id)">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                             stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                 d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                                         </svg>
                                     </button>
+                                    </div>
                                 </template>
-                            </Column>
+                            </Column>                
                         </DataTable>
                     </div>
                 </div>
             </div>
         </div>
     </AppLayout>
-    <Modal :show="showDeleteUserConfirmModal" @close="closeDeleteUserConfirmModal">
-        <form @submit.prevent="deleteUser()">
-            <h2 class="flex items-center justify-center p-4 m-4 font-bold text-green-950">tem certeza que deseja excluir
-                este Protocolo!</h2>
+    <!-- modal de deletar protocolo   -->
+    <Modal :show="showDeleteProtocolConfirmModal" @close="closeDeleteProtocolConfirmModal">
+        <form @submit.prevent="deleteProtocol()" class="bg-[var(--surface-50)]">
+            <h2 class="flex items-center justify-center p-4 m-4 font-bold text-[var(--text-color)]">Tem certeza que deseja excluir
+                esta Pessoa?</h2>
             <div class="flex justify-around">
-                <button type="submit" class="bg-red-500 text-white rounded-md m-4 px-2 py-1">Excluir </button>
-                <button type="button" class="bg-green-500 text-white rounded-md m-4 px-2 py-1"
-                    @click="closeDeleteUserConfirmModal">cancelar</button>
+                <button type="button"
+                    class="bg-[var(--green-500)] text-[var(--primary-color-text)] rounded-md m-4 px-2 py-1"
+                    @click="closeDeleteProtocolConfirmModal">Cancelar</button>
+                <button type="submit"
+                    class="bg-[var(--red-500)] text-[var(--primary-color-text)] rounded-md m-4 px-2 py-1">Excluir </button>
             </div>
         </form>
     </Modal>
+    <!-- modal de editar protocolo -->
+    <Modal :show="showUpdateProtocolModal" @close="closeUpdateProtocolModal" :max-width="'4xl'">
+        <div class="flex items-start justify-between p-4 border-b rounded-t ">
+            <h3 class="text-xl font-semibold text-gray-900 ">
+                Editar Protocolo
+            </h3>
+            <button @click="closeUpdateProtocolModal" type="button"
+                class="text-[var(--gray-400)] bg-transparent hover:bg-[var(--gray-200)] hover:text-[var(--red-500)] rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center ">
+                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                </svg>
+                <span class="sr-only">Close modal</span>
+            </button>
+        </div>
+        <div class="p-6">
+            <form @submit.prevent="updateProtocol">
+                <div class="grid md:grid-cols-2 gap-5">
+
+                    <div class="form-control w-full">
+                        <label class="label">
+                            <span class="label-text">Descrição:*</span>
+                        </label>
+                        <Textarea rows="2" cols="30" placeholder="Escreva a Descrição" v-model="formUpdateProtocol.description"
+                            class="w-full md:w-14rem rounded-md shadow-sm :focus:border-[var(--primary-color)]"
+                            @change="formUpdateProtocol.validate('description')" />
+                        <span v-if="formUpdateProtocol.invalid('description')" class="text-base text-[var(--red-500)]">
+                            {{ formUpdateProtocol.errors.description }}
+                        </span>
+                    </div>
+
+                    <div class="form-control w-full">
+                        <label class="label">
+                            <span class="label-text">Data:*</span>
+                        </label>
+                        <Calendar v-model="formUpdateProtocol.date" dateFormat="dd/mm/yy" showIcon :minDate="minDateForDate"
+                            :maxDate="currentDate" class="w-full md:w-14rem rounded-md shadow-sm"
+                            @change="formUpdateProtocol.validate('date')" />
+                        <span v-if="formUpdateProtocol.invalid('date')" class="text-base text-[var(--red-500)]">
+                            {{ formUpdateProtocol.errors.date }}
+                        </span>
+                    </div>
+
+                    <div class="form-control w-full ">
+                        <label class="label">
+                            <span class="label-text">Selecione o Demandente:* {{ formUpdateProtocol.people }}</span>
+                        </label>
+                        <Dropdown v-model="formUpdateProtocol.people" :options="peoples" optionLabel="name"
+                            placeholder="Clique para Selecionar" @change="formUpdateProtocol.validate('people')"
+                            class="w-full md:w-14rem rounded-md shadow-sm" />
+
+                        <span v-if="formUpdateProtocol.invalid('people')" class="text-base text-[var(--red-500)]">
+                            {{ formUpdateProtocol.errors.people }}
+                        </span>
+                    </div>
+
+                    <div class="form-control w-full">
+                        <label class="label">
+                            <span class="label-text">Prazo:*</span>
+                        </label>
+                        <Calendar v-model="formUpdateProtocol.term" dateFormat="dd/mm/yy" showIcon :minDate="currentDate"
+                            :maxDate="maxDateForTerm"
+                            class="w-full md:w-14rem rounded-md shadow-sm"
+                            @change="formUpdateProtocol.validate('term')" />
+                        <span v-if="formUpdateProtocol.invalid('term')" class="text-base text-[var(--red-500)]">
+                            {{ formUpdateProtocol.errors.term }}
+                        </span>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+
+    </Modal>
+    <!-- modal de criar protocolo   -->
     <Modal :show="openingModal" @close="closeModal" :max-width="'4xl'">
         <div class="flex items-start justify-between p-4 border-b rounded-t ">
             <h3 class="text-xl font-semibold text-gray-900 ">
                 Criar Protocolo
             </h3>
             <button @click="closeModal" type="button"
-                class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-[var(--red-500)] rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center ">
+                class="text-[var(--gray-400)] bg-transparent hover:bg-(--gray-200)] hover:text-[var(--red-500)] rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center ">
                 <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />

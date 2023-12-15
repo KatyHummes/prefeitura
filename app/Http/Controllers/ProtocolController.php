@@ -32,6 +32,19 @@ class ProtocolController extends Controller
             'people_id' => $request->input('people_id')['id']
         ]);
     }
+    public function update(ProtocolRequest $request, $id)
+    {
+        $protocol = Protocol::findOrFail($id);
+        $datedate = \Carbon\Carbon::parse($request->input('date'))->format('Y-m-d');
+        $termDate = \Carbon\Carbon::parse($request->input('term'))->format('Y-m-d');
+        // dd($termDate, $request->all());
+        $protocol->update([
+            'date' => $datedate,
+            'description' => $request->input('description'),
+            'term' =>  $termDate,
+            'people_id' => $request->input('people_id')['id']
+        ]);
+    }
 
     public function delete($id)
     {
