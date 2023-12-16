@@ -205,8 +205,8 @@ const updateProtocol = () => {
                                 class="bg-[var(--surface-0)] text-[var(--text-color)] hover:text-[var(--primary-color)] flex justify-center items-center m-8 py-3 px-2 font-bold rounded-lg"
                                 @click="openModal">Criar Protocolo</button>
                         </div>
-                        <DataTable v-model:filters="filters" :value="protocols" paginator showGridlines :rows="10"
-                            dataKey="id" filterDisplay="menu"
+                        <DataTable v-model:filters="filters" :value="protocols" paginator showGridlines :rows="10" :rowsPerPageOptions="[5, 10, 20, 50]" 
+                            dataKey="id" scrollable filterDisplay="menu"
                             :globalFilterFields="['people', 'date', 'term', 'description']" removableSort an>
                             <template #header>
                                 <div class="flex justify-between">
@@ -285,27 +285,28 @@ const updateProtocol = () => {
     </AppLayout>
     <!-- modal de deletar protocolo   -->
     <Modal :show="showDeleteProtocolConfirmModal" @close="closeDeleteProtocolConfirmModal">
-        <form @submit.prevent="deleteProtocol()" class="bg-[var(--surface-50)]">
+        <form @submit.prevent="deleteProtocol()" class="bg-[var(--surface-50)] p-4">
             <h2 class="flex items-center justify-center p-4 m-4 font-bold text-[var(--text-color)]">Tem certeza que deseja
-                excluir
-                esta Pessoa?</h2>
-            <div class="flex justify-around">
+                excluir este Protocolo?</h2>
+            <div class="flex justify-between mt-12">
                 <button type="button"
-                    class="bg-[var(--green-500)] text-[var(--primary-color-text)] rounded-md m-4 px-2 py-1"
+                class="inline-flex items-center px-4 py-2 bg-[var(--red-500)] border border-gray-300 rounded-md font-semibold text-xs text-white uppercase tracking-widest shadow-sm hover:bg-[var(--red-700)] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150"
                     @click="closeDeleteProtocolConfirmModal">Cancelar</button>
                 <button type="submit"
-                    class="bg-[var(--red-500)] text-[var(--primary-color-text)] rounded-md m-4 px-2 py-1">Excluir </button>
+                class="inline-flex items-center px-8 py-4 bg-[var(--green-500)] border border-gray-300 rounded-md font-semibold text-xs text-white uppercase tracking-widest shadow-sm hover:bg-[var(--green-700)] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">Excluir </button>
             </div>
+
         </form>
     </Modal>
+
     <!-- modal de editar protocolo -->
     <Modal :show="showUpdateProtocolModal" @close="closeUpdateProtocolModal" :max-width="'4xl'">
         <div class="flex items-start justify-between p-4 border-b rounded-t ">
-            <h3 class="text-xl font-semibold text-gray-900 ">
+            <h3 class="text-xl font-semibold text-[var(--text-color)]">
                 Editar Protocolo
             </h3>
             <button @click="closeUpdateProtocolModal" type="button"
-                class="text-[var(--gray-400)] bg-transparent hover:bg-[var(--gray-200)] hover:text-[var(--red-500)] rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center ">
+                class="text-[var(--gray-400)] bg-transparent hover:bg-[var(--surface-0)] hover:text-[var(--red-500)] rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center ">
                 <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
@@ -368,27 +369,28 @@ const updateProtocol = () => {
                     </div>
 
                 </div>
-                <div class="flex justify-around mt-6">
-                    <Button @click="closeUpdateProtocolModal" type="button"
-                        class="inline-flex items-center px-4 py-2 bg-[var(--red-500)] rounded-md font-semibold text-xs text-[var(--surface-f)] uppercase tracking-widest shadow-sm hover:bg-[var(--red-700)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
+                <div class="flex justify-between mt-12">
+                    <Button @click="closeModal" type="button"
+                        class="inline-flex items-center px-4 py-2 bg-[var(--red-500)] border border-gray-300 rounded-md font-semibold text-xs text-white uppercase tracking-widest shadow-sm hover:bg-[var(--red-700)] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
                         Cancelar
                     </Button>
                     <Button type="submit"
-                        class="inline-flex items-center px-4 py-2 bg-[var(--green-500)] rounded-md font-semibold text-xs text-[var(--surface-f)] uppercase tracking-widest shadow-sm hover:bg-[var(--green-700)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
+                        class="inline-flex items-center px-8 py-4 bg-[var(--green-500)] border border-gray-300 rounded-md font-semibold text-xs text-white uppercase tracking-widest shadow-sm hover:bg-[var(--green-700)] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
                         Salvar
                     </Button>
                 </div>
             </form>
         </div>
     </Modal>
+
     <!-- modal de criar protocolo   -->
     <Modal :show="openingModal" @close="closeModal" :max-width="'4xl'">
-        <div class="flex items-start justify-between p-4 border-b rounded-t ">
-            <h3 class="text-xl font-semibold text-gray-900 ">
+        <div class="flex items-start justify-between p-4 border-b rounded-t">
+            <h3 class="text-xl font-semibold text-[var(--text-color)]">
                 Criar Protocolo
             </h3>
             <button @click="closeModal" type="button"
-                class="text-[var(--gray-400)] bg-transparent hover:bg-(--gray-200)] hover:text-[var(--red-500)] rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center ">
+                class="text-[var(--surface-900)] bg-transparent hover:bg-[var(--surface-0)] hover:text-[var(--red-500)] rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center">
                 <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
@@ -451,13 +453,13 @@ const updateProtocol = () => {
                     </div>
 
                 </div>
-                <div class="flex justify-around mt-4">
+                <div class="flex justify-between mt-12">
                     <Button @click="closeModal" type="button"
                         class="inline-flex items-center px-4 py-2 bg-[var(--red-500)] border border-gray-300 rounded-md font-semibold text-xs text-white uppercase tracking-widest shadow-sm hover:bg-[var(--red-700)] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
                         Cancelar
                     </Button>
                     <Button type="submit"
-                        class="inline-flex items-center px-4 py-2 bg-[var(--green-500)] border border-gray-300 rounded-md font-semibold text-xs text-white uppercase tracking-widest shadow-sm hover:bg-[var(--green-700)] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
+                        class="inline-flex items-center px-8 py-4 bg-[var(--green-500)] border border-gray-300 rounded-md font-semibold text-xs text-white uppercase tracking-widest shadow-sm hover:bg-[var(--green-700)] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
                         Salvar
                     </Button>
                 </div>
