@@ -18,14 +18,6 @@ use App\Http\Controllers\PeopleController;
 |
 */
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-});
 
 Route::middleware([
     'auth:sanctum',
@@ -33,7 +25,7 @@ Route::middleware([
     'verified',
 ])->group(function () {
     // Pessoas:
-    Route::get('pessoas', [PeopleController::class, 'index'])->name('peoples');
+    Route::get('/', [PeopleController::class, 'index'])->name('peoples');
     Route::post('criar-pessoa', [PeopleController::class, 'store'])->name('store.people')->middleware([HandlePrecognitiveRequests::class]);
     Route::get('editar-pessoa/{id}', [PeopleController::class, 'edit'])->name('people.edit');
     Route::put('atualizar-pessoa/{id}', [PeopleController::class, 'update'])->name('people.update')->middleware([HandlePrecognitiveRequests::class]);

@@ -279,7 +279,7 @@ const updatePeople = () => {
                                 <Dropdown v-model="filterModel.value" :options="sexes2" placeholder="Pesquise o Sexo"
                                     class="p-column-filter" showClear>
                                     <template #option="slotProps">
-                                        <Tag :value="slotProps.option" :severity="getSeverity(slotProps.option)"
+                                        <Tag :value="slotProps.option" :severity="getSeverity(slotProps.option)" class="!text-red-500"
                                             style="background: linear-gradient(to right, var(--primary-300), var(--primary-700))" />
                                     </template>
                                 </Dropdown>
@@ -580,3 +580,9 @@ const updatePeople = () => {
         </div>
     </Modal>
 </template>
+
+<style>
+.p-tag-value{
+    color: white;
+}
+</style>

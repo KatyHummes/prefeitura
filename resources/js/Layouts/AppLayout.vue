@@ -100,7 +100,7 @@ const closeThemeModal = () => {
                                     <template #trigger>
                                         <span class="inline-flex rounded-md">
                                             <button type="button"
-                                                class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none focus:bg-gray-50 active:bg-gray-50 transition ease-in-out duration-150">
+                                                class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-[var(--primary-color-text)] bg-[var(--surface-50)] hover:text-[var(--surface-50)] focus:outline-none focus:bg-[var(--surface-50)] active:bg-[var(--surface-50)] transition ease-in-out duration-150">
                                                 {{ $page.props.auth.user.current_team.name }}
 
                                                 <svg class="ms-2 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg"
@@ -116,7 +116,7 @@ const closeThemeModal = () => {
                                     <template #content>
                                         <div class="w-60">
                                             <!-- Team Management -->
-                                            <div class="block px-4 py-2 text-xs text-gray-400">
+                                            <div class="block px-4 py-2 text-xs text-[var(--text-color)]">
                                                 Gerenciar equipe
                                             </div>
 
@@ -132,9 +132,9 @@ const closeThemeModal = () => {
 
                                             <!-- Team Switcher -->
                                             <template v-if="$page.props.auth.user.all_teams.length > 1">
-                                                <div class="border-t border-gray-200" />
+                                                <div class="border-t text-[var(--text-color-secondary)]" />
 
-                                                <div class="block px-4 py-2 text-xs text-gray-400">
+                                                <div class="block px-4 py-2 text-xs text-[var(--text-color)]">
                                                     Trocar de equipe
                                                 </div>
 
@@ -143,7 +143,7 @@ const closeThemeModal = () => {
                                                         <DropdownLink as="button">
                                                             <div class="flex items-center">
                                                                 <svg v-if="team.id == $page.props.auth.user.current_team_id"
-                                                                    class="me-2 h-5 w-5 text-green-400"
+                                                                    class="me-2 h-5 w-5 text-[var(--green-400)]"
                                                                     xmlns="http://www.w3.org/2000/svg" fill="none"
                                                                     viewBox="0 0 24 24" stroke-width="1.5"
                                                                     stroke="currentColor">
@@ -167,7 +167,7 @@ const closeThemeModal = () => {
                                 <Dropdown align="right" width="48">
                                     <template #trigger>
                                         <button v-if="$page.props.jetstream.managesProfilePhotos"
-                                            class="flex text-sm border-2 border-transparent rounded-full focus:outline-none focus:border-gray-300 transition">
+                                            class="flex text-sm border-2 border-transparent rounded-full focus:outline-none focus:border-[var(--primary-color)] transition">
                                             <img class="h-8 w-8 rounded-full object-cover"
                                                 :src="$page.props.auth.user.profile_photo_url"
                                                 :alt="$page.props.auth.user.name">
@@ -175,7 +175,7 @@ const closeThemeModal = () => {
 
                                         <span v-else class="inline-flex rounded-md">
                                             <button type="button"
-                                                class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none focus:bg-gray-50 active:bg-gray-50 transition ease-in-out duration-150">
+                                                class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-[var(--surface-900)] bg-[var(--surface-0)] hover:text-[var(--gray-700)] focus:outline-none focus:bg-[var(--surface-200)] active:bg-[var(--surface-100)] transition ease-in-out duration-150">
                                                 {{ $page.props.auth.user.name }}
 
                                                 <svg class="ms-2 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg"
@@ -190,7 +190,7 @@ const closeThemeModal = () => {
 
                                     <template #content>
                                         <!-- Account Management -->
-                                        <div class="block px-4 py-2 text-xs text-gray-400">
+                                        <div class="block px-4 py-2 text-xs text-black">
                                             Gerenciar conta
                                         </div>
 
@@ -203,7 +203,7 @@ const closeThemeModal = () => {
                                             API Tokens
                                         </DropdownLink>
 
-                                        <div class="border-t border-gray-200" />
+                                        <div class="border-t border-[var(-surface-100)]" />
 
                                         <!-- Authentication -->
                                         <form @submit.prevent="logout">
@@ -217,8 +217,9 @@ const closeThemeModal = () => {
                         </div>
                         <Modal :show="showThemeModal" @close="closeThemeModal">
 
-                            <div>Escolha seu tema</div>
+                            <div class="font-bolt ">Escolha seu tema</div>
                             <div>
+                                
                                 <h1 class="text-2xl mb-2">Lara</h1>
                                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-8">
                                     <button @click="changeTheme('lara-light-purple')"
@@ -288,7 +289,7 @@ const closeThemeModal = () => {
                         <!-- Hamburger -->
                         <div class="-me-2 flex items-center sm:hidden">
                             <button
-                                class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out"
+                                class="inline-flex items-center justify-center p-2 rounded-md text-[var(--text-color)] hover:text-[var(--text-color-secondary)] hover:bg-[var(--surface-100)] focus:outline-none focus:bg-[var(--surface-100)] focus:text-[var(--text-color-secondary)] transition duration-150 ease-in-out"
                                 @click="showingNavigationDropdown = !showingNavigationDropdown">
                                 <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                                     <path
@@ -333,10 +334,10 @@ const closeThemeModal = () => {
                             </div>
 
                             <div>
-                                <div class="font-medium text-base text-gray-800">
+                                <div class="font-medium text-base text-[var(--surface-900)]">
                                     {{ $page.props.auth.user.name }}
                                 </div>
-                                <div class="font-medium text-sm text-gray-500">
+                                <div class="font-medium text-sm text-[var(--text-color-secondary)]">
                                     {{ $page.props.auth.user.email }}
                                 </div>
                             </div>
@@ -361,9 +362,9 @@ const closeThemeModal = () => {
 
                             <!-- Team Management -->
                             <template v-if="$page.props.jetstream.hasTeamFeatures">
-                                <div class="border-t border-gray-200" />
+                                <div class="border-t border-[var(--surface-200)]" />
 
-                                <div class="block px-4 py-2 text-xs text-gray-400">
+                                <div class="block px-4 py-2 text-xs text-[var(--text-color)]">
                                     Gerenciar equipe
                                 </div>
 
@@ -380,9 +381,9 @@ const closeThemeModal = () => {
 
                                 <!-- Team Switcher -->
                                 <template v-if="$page.props.auth.user.all_teams.length > 1">
-                                    <div class="border-t border-gray-200" />
+                                    <div class="border-t text-[var(--text-color-secondary)]" />
 
-                                    <div class="block px-4 py-2 text-xs text-gray-400">
+                                    <div class="block px-4 py-2 text-xs text-[var(--text-color)]">
                                         Trocar de equipe
                                     </div>
 
@@ -391,7 +392,7 @@ const closeThemeModal = () => {
                                             <ResponsiveNavLink as="button">
                                                 <div class="flex items-center">
                                                     <svg v-if="team.id == $page.props.auth.user.current_team_id"
-                                                        class="me-2 h-5 w-5 text-green-400"
+                                                        class="me-2 h-5 w-5 text-[var(--green-400)]"
                                                         xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                                         stroke-width="1.5" stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round"

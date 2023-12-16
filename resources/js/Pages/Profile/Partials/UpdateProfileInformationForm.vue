@@ -78,11 +78,11 @@ const clearPhotoFileInput = () => {
 <template>
     <FormSection @submitted="updateProfileInformation">
         <template #title>
-            Profile Information
+            <h1 class="text-[var(--text-color)]">Profile Information</h1>
         </template>
 
         <template #description>
-            Update your account's profile information and email address.
+            <p class="text-[var(--text-color)]">Update your account's profile information and email address.</p>
         </template>
 
         <template #form>
@@ -135,7 +135,7 @@ const clearPhotoFileInput = () => {
                     id="name"
                     v-model="form.name"
                     type="text"
-                    class="mt-1 block w-full"
+                    class="mt-1 block w-full text-black"
                     required
                     autocomplete="name"
                 />
@@ -149,7 +149,7 @@ const clearPhotoFileInput = () => {
                     id="email"
                     v-model="form.email"
                     type="email"
-                    class="mt-1 block w-full"
+                    class="mt-1 block w-full text-black"
                     required
                     autocomplete="username"
                 />
