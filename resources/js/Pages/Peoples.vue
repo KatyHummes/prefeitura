@@ -15,6 +15,8 @@ import 'vue-toast-notification/dist/theme-sugar.css';
 import InputText from 'primevue/inputtext';
 import { FilterMatchMode, FilterOperator } from 'primevue/api';
 import Tag from 'primevue/tag';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 const toast = useToast();
 
@@ -203,6 +205,35 @@ const updatePeople = () => {
     });
 };
 
+// logica para exportar pdf
+const downloadPDF = () => {
+    const doc = new jsPDF();
+    
+    // Adicione cabeçalhos ao PDF
+    const headers = [['Name', 'Birth', 'CPF', 'Sex', 'City', 'Neighborhood', 'Street', 'Number', 'Complement']];
+    
+    // Adicione dados da tabela ao PDF
+    const data = peoples.value.map(people => [
+        people.name,
+        formatDate(people.birth),
+        people.cpf,
+        people.sex,
+        people.city,
+        people.neighborhood,
+        people.street,
+        people.number,
+        people.complement,
+    ]);
+    
+    doc.autoTable({
+        head: headers,
+        body: data,
+    });
+    
+    const fileName = 'people_data.pdf';
+    doc.save(fileName);
+};
+
 </script>
 
 <template>
@@ -232,6 +263,7 @@ const updatePeople = () => {
                                     <i />
                                     <InputText v-model="filters['global'].value" placeholder="Pesquise por Palavra chave" />
                                 </span>
+                                <button type="button" @click="downloadPDF" outlined >Download PDF</button>
                             </div>
                         </template>
                         <template #empty> Nenhuma pessoa encontrada! </template>

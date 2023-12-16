@@ -13,6 +13,8 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import { FilterMatchMode, FilterOperator } from 'primevue/api'
 import InputText from 'primevue/inputtext';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 const toast = useToast();
 
@@ -184,6 +186,31 @@ const updateProtocol = () => {
         }
     });
 };
+
+// logica para exportar pdf
+const downloadPDF = () => {
+    const doc = new jsPDF();
+    
+    // Adicione cabeçalhos ao PDF
+    const headers = [['date', 'term', 'description', 'people']];
+    
+  
+    const data = protocols.value.map(protocol => [
+    protocol.name,
+        formatDate(protocol.date),
+        formatDate(protocol.term),
+        protocol.description,
+        protocol.people,
+    ]);
+
+    doc.autoTable({
+        head: headers,
+        body: data,
+    });
+    
+    const fileName = 'protocol_data.pdf';
+    doc.save(fileName);
+};
 </script>
 
 <template>
@@ -216,6 +243,7 @@ const updateProtocol = () => {
                                         <InputText v-model="filters['global'].value"
                                             placeholder="Pesquise por Palavra chave" />
                                     </span>
+                                    <button type="button" @click="downloadPDF" outlined >Download PDF</button>
                                 </div>
                             </template>
                             <template #empty> Nenhum protocolo encontrado! </template>
