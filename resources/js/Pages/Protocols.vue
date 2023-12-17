@@ -158,7 +158,7 @@ const openUpdateProtocolModal = (protocolData) => {
 
     formUpdateProtocol.value = useForm('put', `/atualizar-protocolo/${protocolData.id}`, {
         id: protocolData.id,
-        people: selectedPeople || '', // Se não encontrar, atribuir uma string vazia
+        people_id: selectedPeople || '', // Se não encontrar, atribuir uma string vazia
         description: protocolData.description,
         date: protocolData.date,
         term: protocolData.term,
@@ -375,7 +375,7 @@ const downloadPDF = () => {
                         <label class="label">
                             <span class="label-text">Selecione o Demandente:* </span>
                         </label>
-                        <Dropdown v-model="formUpdateProtocol.people" :options="peoples" optionLabel="name"
+                        <Dropdown v-model="formUpdateProtocol.people_id" :options="peoples" optionLabel="name"
                             placeholder="Clique para Selecionar" @change="formUpdateProtocol.validate('people')"
                             class="w-full md:w-14rem rounded-md shadow-sm" />
 
