@@ -21,10 +21,13 @@ class PeopleRequest extends FormRequest
      */
     public function rules(): array
     {
+
+        $peopleId = $this->route('id');
+
         return [
             'name' => ['required'],
             'birth' => ['required'],
-            'cpf' => ['required'],
+            'cpf' => ['required', "unique:people,cpf,{$peopleId}"],
             'sex' => ['required'],
         ];
     }
@@ -33,6 +36,7 @@ class PeopleRequest extends FormRequest
     {
         return [
             'required' => 'Este campo é obrigatório',
+            'cpf.unique' => 'CPF já cadastrado.'
         ];
     }
 }

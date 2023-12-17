@@ -16,10 +16,10 @@ defineProps({
 
 const PrimeVue = usePrimeVue();
 
-const theme = ref(localStorage.getItem('theme') || 'lara-light-purple');
+const theme = ref(localStorage.getItem('theme') || 'lara-light-pink');
 
 onMounted(() => {
-    PrimeVue.changeTheme('lara-light-purple', theme.value, 'theme-link');
+    PrimeVue.changeTheme('lara-light-pink', theme.value, 'theme-link');
 });
 
 const changeTheme = (newTheme) => {
@@ -215,13 +215,12 @@ const closeThemeModal = () => {
                                 </Dropdown>
                             </div>
                         </div>
-                        <Modal :show="showThemeModal" @close="closeThemeModal">
+                        <Modal :show="showThemeModal" @close="closeThemeModal" :maxWidth="'3xl'">
 
-                            <div class="font-bolt ">Escolha seu tema</div>
-                            <div>
-                                
-                                <h1 class="text-2xl mb-2">Lara</h1>
-                                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-8">
+                            <div class="p-4">
+                                <h1 class="text-2xl font-bold text-[var(--text-color)]">Escolha seu tema</h1>
+                                <p>O lado esquerdo será o modo (claro ou escuro) e o direito é a cor principal do tema.</p>
+                                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-x-4 gap-y-8">
                                     <button @click="changeTheme('lara-light-purple')"
                                         class="border border-[#8B5CF6] flex justify-between items-center h-8">
                                         <span class="bg-[#ffffff] w-full h-full "></span>
@@ -282,6 +281,15 @@ const closeThemeModal = () => {
                                         <span class="bg-[#ec4899] w-full h-full"></span>
                                     </button>
 
+                                </div>
+                                <h1 class="my-4 text-xl font-bold text-[var(--text-color)]">Pré visualização do tema.</h1>
+                                <div class="w-full p-4 rounded-2xl border-2 border-[var(--surface-900)] bg-[var(--surface-0)]">
+                                    <h1 class="text-2xl text-[var(--primary-color)] text-center font-bold">Título exemplo</h1>
+                                    <p class="text-sm text-[var(--text-color)] mt-4">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem
+                                        Ipsum has been the industry's standard dummy text ever since the 1500s, when an
+                                        unknown printer took a galley of type and scrambled it to make a type specimen book.
+                                        It has survived not only five centuries, but also the leap into electronic
+                                        typesetting, remaining essentially unchanged.</p>
                                 </div>
                             </div>
 
@@ -422,5 +430,4 @@ const closeThemeModal = () => {
                 <slot />
             </main>
         </div>
-    </div>
-</template>
+</div></template>

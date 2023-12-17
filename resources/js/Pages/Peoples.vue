@@ -98,6 +98,7 @@ initFilters();
 
 const clearFilter = () => {
     initFilters();
+    filteredPeoples.value = [];
 };
 
 const formatDate = (value) => {
@@ -106,12 +107,6 @@ const formatDate = (value) => {
         month: '2-digit',
         year: 'numeric'
     });
-};
-const formatCPF = (value) => {
-    // Remove caracteres não numéricos
-    const cpf = value.replace(/\D/g, '');
-    // Adiciona os pontos e o traço da máscara
-    return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
 };
 
 const getSeverity = (sex) => {
@@ -128,20 +123,20 @@ const getSeverity = (sex) => {
 };
 
 // confg da modal deletar pessoas
-const showDeleteUserConfirmModal = ref(false);
-const formDeleteUser = ref(null);
-const openDeleteUserConfirmModal = (id) => {
-    formDeleteUser.value = useForm('delete', `/excluir-pessoa/${id}`, {
+const showDeletePeopleConfirmModal = ref(false);
+const formDeletePeople = ref(null);
+const openDeletePeopleConfirmModal = (id) => {
+    formDeletePeople.value = useForm('delete', `/excluir-pessoa/${id}`, {
         id: id,
     });
-    showDeleteUserConfirmModal.value = true;
+    showDeletePeopleConfirmModal.value = true;
 };
 const closeDeletePeopleConfirmModal = () => {
-    showDeleteUserConfirmModal.value = false;
+    showDeletePeopleConfirmModal.value = false;
 };
 
-const deleteUser = () => {
-    formDeleteUser.value.submit({
+const deletePeople = () => {
+    formDeletePeople.value.submit({
         preserveScroll: true,
         onSuccess: () => {
             closeDeletePeopleConfirmModal();
@@ -205,14 +200,22 @@ const updatePeople = () => {
     });
 };
 
-// logica para exportar pdf
+const formatCpf = (cpf) => {
+    if (!cpf) return '';
+
+    cpf = cpf.replace(/\D/g, '');
+
+    cpf = cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+
+    return cpf;
+};
+
+// lógica para exportar PDF
 const downloadPDF = () => {
     const doc = new jsPDF();
     
-    // Adicione cabeçalhos ao PDF
     const headers = [['Name', 'Birth', 'CPF', 'Sex', 'City', 'Neighborhood', 'Street', 'Number', 'Complement']];
     
-    // Adicione dados da tabela ao PDF
     const data = peoples.value.map(people => [
         people.name,
         formatDate(people.birth),
@@ -253,24 +256,25 @@ const downloadPDF = () => {
                             class="bg-[var(--surface-0)] text-[var(--text-color)] hover:text-[var(--primary-color)] flex justify-center items-center m-8 py-3 px-2 font-bold rounded-lg"
                             @click="openCreatePeopleModal">Criar Pessoa</button>
                     </div>
-                    <DataTable v-model:filters="filters" :value="peoples" paginator showGridlines :rows="10" :rowsPerPageOptions="[5, 10, 20, 50]" dataKey="id" scrollable  
-                        filterDisplay="menu" :globalFilterFields="['name', 'cpf', 'birth', 'sex']" removableSort>
+                    <DataTable ref="dt" v-model:filters="filters" :value="peoples" paginator showGridlines :rows="10"
+                        :rowsPerPageOptions="[5, 10, 20, 50]" dataKey="id" scrollable filterDisplay="menu"
+                        :globalFilterFields="['name', 'cpf', 'birth', 'sex']" removableSort>
                         <template #header>
                             <div class="flex justify-between">
-                                <Button type="button" icon="" label="Limpar" outlined
-                                    @click="clearFilter()" />
+                                <Button type="button" icon="" label="Limpar" outlined @click="clearFilter()" />
                                 <span>
                                     <i />
                                     <InputText v-model="filters['global'].value" placeholder="Pesquise por Palavra chave" />
                                 </span>
-                                <button type="button" @click="downloadPDF" outlined >Download PDF</button>
+                                <button type="button" @click="downloadPdf" outlined
+                                    class="text-[var(--primary-color)]">Download PDF</button>
                             </div>
                         </template>
                         <template #empty> Nenhuma pessoa encontrada! </template>
 
                         <Column field="id" header="ID" style="min-width: 4rem" sortable />
 
-                        <Column field="name" header="Name" style="min-width: 12rem">
+                        <Column field="name" header="Name" style="min-width: 12rem" sortable>
                             <template #body="{ data }">
                                 {{ data.name }}
                             </template>
@@ -280,7 +284,8 @@ const downloadPDF = () => {
                             </template>
                         </Column>
 
-                        <Column header="Nascimento" filterField="birth" dataType="date" style="min-width: 10rem">
+                        <Column field="birth" header="Nascimento" sortable filterField="birth" dataType="date"
+                            style="min-width: 10rem">
                             <template #body="{ data }">
                                 {{ formatDate(data.birth) }}
                             </template>
@@ -290,9 +295,9 @@ const downloadPDF = () => {
                             </template>
                         </Column>
 
-                        <Column field="cpf" header="CPF" style="min-width: 12rem">
+                        <Column field="cpf" header="CPF" style="min-width: 12rem" sortable>
                             <template #body="{ data }">
-                                {{ formatCPF(data.cpf) }}
+                                {{ formatCpf(data.cpf) }}
                             </template>
                             <template #filter="{ filterModel }">
 
@@ -302,7 +307,8 @@ const downloadPDF = () => {
                             </template>
                         </Column>
 
-                        <Column header="Sexo" field="sex" :filterMenuStyle="{ width: '14rem' }" style="min-width: 12rem">
+                        <Column header="Sexo" field="sex" :filterMenuStyle="{ width: '14rem' }" style="min-width: 12rem"
+                            sortable>
                             <template #body="{ data }">
                                 <Tag :value="data.sex" :style="getSeverity(data.sex)" />
                             </template>
@@ -310,13 +316,13 @@ const downloadPDF = () => {
                                 <Dropdown v-model="filterModel.value" :options="sexes2" placeholder="Pesquise o Sexo"
                                     class="p-column-filter" showClear>
                                     <template #option="slotProps">
-                                        <Tag :value="slotProps.option" :severity="getSeverity(slotProps.option)" class="!text-red-500"
+                                        <Tag :value="slotProps.option" :severity="getSeverity(slotProps.option)"
+                                            class="!text-red-500"
                                             style="background: linear-gradient(to right, var(--primary-300), var(--primary-700))" />
                                     </template>
                                 </Dropdown>
                             </template>
                         </Column>
-
                         <Column headerStyle="width:4rem" header="Ações" field="actions">
                             <template #body="{ data }">
                                 <div class="flex justify-around">
@@ -327,7 +333,7 @@ const downloadPDF = () => {
                                                 d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                                         </svg>
                                     </button>
-                                    <button @click="openDeleteUserConfirmModal(data.id)" type="button">
+                                    <button @click="openDeletePeopleConfirmModal(data.id)" type="button">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                             stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -346,16 +352,17 @@ const downloadPDF = () => {
     </AppLayout>
 
     <!-- Modal de Deletar Pessoa -->
-    <Modal :show="showDeleteUserConfirmModal" @close="closeDeletePeopleConfirmModal">
-        <form @submit.prevent="deleteUser()" class="bg-[var(--surface-50)] p-4">
+    <Modal :show="showDeletePeopleConfirmModal" @close="closeDeletePeopleConfirmModal">
+        <form @submit.prevent="deletePeople()" class="bg-[var(--surface-50)] p-4">
             <h2 class="flex items-center justify-center p-4 m-4 font-bold text-[var(--text-color)]">Tem certeza que deseja
                 excluir esta Pessoa?</h2>
             <div class="flex justify-between mt-12">
                 <button type="button"
-                class="inline-flex items-center px-4 py-2 bg-[var(--red-500)] border border-gray-300 rounded-md font-semibold text-xs text-white uppercase tracking-widest shadow-sm hover:bg-[var(--red-700)] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150"
+                    class="inline-flex items-center px-4 py-2 bg-[var(--red-500)] border border-gray-300 rounded-md font-semibold text-xs text-white uppercase tracking-widest shadow-sm hover:bg-[var(--red-700)] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150"
                     @click="closeDeletePeopleConfirmModal">Cancelar</button>
                 <button type="submit"
-                class="inline-flex items-center px-8 py-4 bg-[var(--green-500)] border border-gray-300 rounded-md font-semibold text-xs text-white uppercase tracking-widest shadow-sm hover:bg-[var(--green-700)] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">Excluir </button>
+                    class="inline-flex items-center px-8 py-4 bg-[var(--green-500)] border border-gray-300 rounded-md font-semibold text-xs text-white uppercase tracking-widest shadow-sm hover:bg-[var(--green-700)] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">Excluir
+                </button>
             </div>
 
         </form>
@@ -468,11 +475,9 @@ const downloadPDF = () => {
                         <Textarea rows="5" cols="30" placeholder="Complemento de Endereço"
                             v-model="formUpdatePeople.complement" class="w-full md:w-14rem  rounded-md shadow-sm" />
                     </div>
-
-
                 </div>
                 <div class="flex justify-between mt-12">
-                    <Button @click="closeModal" type="button"
+                    <Button @click="closeUpdatePeopleModal" type="button"
                         class="inline-flex items-center px-4 py-2 bg-[var(--red-500)] border border-gray-300 rounded-md font-semibold text-xs text-white uppercase tracking-widest shadow-sm hover:bg-[var(--red-700)] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
                         Cancelar
                     </Button>
@@ -481,7 +486,6 @@ const downloadPDF = () => {
                         Salvar
                     </Button>
                 </div>
-
             </form>
         </div>
     </Modal>
@@ -613,7 +617,7 @@ const downloadPDF = () => {
 </template>
 
 <style>
-.p-tag-value{
+.p-tag-value {
     color: white;
 }
 </style>
