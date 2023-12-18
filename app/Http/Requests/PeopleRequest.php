@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Rules\ValidCpf;
 
 class PeopleRequest extends FormRequest
 {
@@ -27,7 +28,7 @@ class PeopleRequest extends FormRequest
         return [
             'name' => ['required'],
             'birth' => ['required'],
-            'cpf' => ['required', "unique:people,cpf,{$peopleId}"],
+            'cpf' => ['required', "unique:people,cpf,{$peopleId}", new ValidCpf()],
             'sex' => ['required'],
         ];
     }

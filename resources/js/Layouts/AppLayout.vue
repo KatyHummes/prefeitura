@@ -218,7 +218,18 @@ const closeThemeModal = () => {
                         <Modal :show="showThemeModal" @close="closeThemeModal" :maxWidth="'3xl'">
 
                             <div class="p-4">
-                                <h1 class="text-2xl font-bold text-[var(--text-color)]">Escolha seu tema</h1>
+                                <div class="mb-2 flex justify-between">
+                                    <h1 class="text-2xl font-bold text-[var(--text-color)]">Escolha seu tema</h1>
+                                    <button @click="closeThemeModal" type="button"
+                                        class="text-[var(--gray-400)] bg-transparent hover:bg-[var(--surface-0)] hover:text-[var(--red-500)] rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center">
+                                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                            fill="none" viewBox="0 0 14 14">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                                stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                                        </svg>
+                                        <span class="sr-only">Close modal</span>
+                                    </button>
+                                </div>
                                 <p>O lado esquerdo será o modo (claro ou escuro) e o direito é a cor principal do tema.</p>
                                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-x-4 gap-y-8">
                                     <button @click="changeTheme('lara-light-purple')"
@@ -283,14 +294,18 @@ const closeThemeModal = () => {
 
                                 </div>
                                 <h1 class="my-4 text-xl font-bold text-[var(--text-color)]">Pré visualização do tema.</h1>
-                                <div class="w-full p-4 rounded-2xl border-2 border-[var(--surface-900)] bg-[var(--surface-0)]">
-                                    <h1 class="text-2xl text-[var(--primary-color)] text-center font-bold">Título exemplo</h1>
-                                    <p class="text-sm text-[var(--text-color)] mt-4">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem
+                                <div
+                                    class="w-full p-4 rounded-2xl border-2 border-[var(--surface-900)] bg-[var(--surface-0)]">
+                                    <h1 class="text-2xl text-[var(--primary-color)] text-center font-bold">Título exemplo
+                                    </h1>
+                                    <p class="text-sm text-[var(--text-color)] mt-4">Lorem Ipsum is simply dummy text of the
+                                        printing and typesetting industry. Lorem
                                         Ipsum has been the industry's standard dummy text ever since the 1500s, when an
                                         unknown printer took a galley of type and scrambled it to make a type specimen book.
                                         It has survived not only five centuries, but also the leap into electronic
                                         typesetting, remaining essentially unchanged.</p>
                                 </div>
+                                <button class="mt-6 flex w-full justify-center items-center bg-[var(--surface-200)] rounded-xl p-4 text-[var(--text-color)] font-bold text-xl" @click="closeThemeModal">Fechar</button>
                             </div>
 
                         </Modal>
@@ -328,9 +343,9 @@ const closeThemeModal = () => {
                         </ResponsiveNavLink>
                     </div>
                     <div class="pt-2 pb-3 space-y-1">
-                        <ResponsiveNavLink @click="openThemeModal">
-                            Temes
-                        </ResponsiveNavLink>
+                        <button @click="openThemeModal" class="ml-4">
+                            Tema
+                        </button>
                     </div>
 
                     <!-- Responsive Settings Options -->
@@ -430,4 +445,5 @@ const closeThemeModal = () => {
                 <slot />
             </main>
         </div>
-</div></template>
+    </div>
+</template>

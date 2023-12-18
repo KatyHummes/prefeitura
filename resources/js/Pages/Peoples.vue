@@ -1,6 +1,6 @@
 <script setup>
 import { useForm } from 'laravel-precognition-vue-inertia';
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import Calendar from 'primevue/calendar';
 import InputMask from 'primevue/inputmask';
 import Textarea from 'primevue/textarea';
@@ -100,6 +100,8 @@ const clearFilter = () => {
     initFilters();
     filteredPeoples.value = [];
 };
+
+const filteredPeoples = ref([]);
 
 const formatDate = (value) => {
     return value.toLocaleDateString('pt-BR', {
@@ -210,33 +212,59 @@ const formatCpf = (cpf) => {
     return cpf;
 };
 
-// lógica para exportar PDF
-const downloadPDF = () => {
-    const doc = new jsPDF();
-    
-    const headers = [['Name', 'Birth', 'CPF', 'Sex', 'City', 'Neighborhood', 'Street', 'Number', 'Complement']];
-    
-    const data = peoples.value.map(people => [
-        people.name,
-        formatDate(people.birth),
-        people.cpf,
-        people.sex,
-        people.city,
-        people.neighborhood,
-        people.street,
-        people.number,
-        people.complement,
-    ]);
-    
-    doc.autoTable({
-        head: headers,
-        body: data,
-    });
-    
-    const fileName = 'people_data.pdf';
-    doc.save(fileName);
-};
+function formatDatePdf(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("pt-BR");
+}
 
+function calculateFilteredPeoples(allPeoples, filters) {
+
+    return allPeoples.filter(people => {
+
+        if (filters.name && filters.name.constraints[0].value) {
+            if (!people.name.includes(filters.name.constraints[0].value)) {
+                return false;
+            }
+        }
+
+        return true;
+    });
+}
+
+watch(() => props.filters, () => {
+    filteredPeoples.value = calculateFilteredPeoples(props.peoples, dt.value.filters);
+}, { deep: true });
+
+const dt = ref(null);
+
+const downloadPdf = () => {
+    const doc = new jsPDF();
+
+    const columns = [
+        { header: "ID", dataKey: "id" },
+        { header: "Nome", dataKey: "name" },
+        { header: "Nascimento", dataKey: "birth" },
+        { header: "CPF", dataKey: "cpf" },
+        { header: "Sexo", dataKey: "sex" },
+        { header: "Cidade", dataKey: "city" },
+        { header: "Bairro", dataKey: "neighborhood" },
+    ];
+
+    const tableData = calculateFilteredPeoples(props.peoples, filters.value).map(people => ({
+        id: people.id,
+        name: people.name,
+        birth: formatDatePdf(people.birth),
+        cpf: formatCpf(people.cpf),
+        sex: people.sex,
+        city: people.city,
+        neighborhood: people.neighborhood,
+    }));
+
+    doc.text("Relatório de Usuários", 10, 10);
+    doc.autoTable(columns, tableData);
+
+    doc.save("Pessoas.pdf");
+};
 </script>
 
 <template>
@@ -252,22 +280,23 @@ const downloadPDF = () => {
                 <div class="bg-[var(--surface-50)] overflow-hidden shadow-xl sm:rounded-lg">
 
                     <div class="flex flex-col justify-center items-center">
-                        <button
-                            class="bg-[var(--surface-0)] text-[var(--text-color)] hover:text-[var(--primary-color)] flex justify-center items-center m-8 py-3 px-2 font-bold rounded-lg"
-                            @click="openCreatePeopleModal">Criar Pessoa</button>
+                        <Button label="Criar Pessoa"
+                            class="!p-4 bg-[var(--surface-0)] text-[var(--text-color)] hover:text-[var(--primary-color)] flex justify-center items-center m-8 py-3 px-2 font-bold rounded-lg"
+                            @click="openCreatePeopleModal" />
                     </div>
                     <DataTable ref="dt" v-model:filters="filters" :value="peoples" paginator showGridlines :rows="10"
                         :rowsPerPageOptions="[5, 10, 20, 50]" dataKey="id" scrollable filterDisplay="menu"
                         :globalFilterFields="['name', 'cpf', 'birth', 'sex']" removableSort>
                         <template #header>
-                            <div class="flex justify-between">
+                            <div class="flex flex-col md:flex-row gap-1 md:justify-between">
                                 <Button type="button" icon="" label="Limpar" outlined @click="clearFilter()" />
                                 <span>
                                     <i />
-                                    <InputText v-model="filters['global'].value" placeholder="Pesquise por Palavra chave" />
+                                    <InputText v-model="filters['global'].value" placeholder="Pesquise por Palavra chave"
+                                        class="w-full" />
                                 </span>
-                                <button type="button" @click="downloadPdf" outlined
-                                    class="text-[var(--primary-color)]">Download PDF</button>
+                                <Button type="button" @click="downloadPdf" outlined label="Download PDF"
+                                    class="text-[var(--primary-color)]" />
                             </div>
                         </template>
                         <template #empty> Nenhuma pessoa encontrada! </template>
@@ -276,7 +305,7 @@ const downloadPDF = () => {
 
                         <Column field="name" header="Name" style="min-width: 12rem" sortable>
                             <template #body="{ data }">
-                                {{ data.name }}
+                                {{ data.name.length > 50 ? data.name.substring(0, 50) + '...' : data.name }}
                             </template>
                             <template #filter="{ filterModel }">
                                 <InputText v-model="filterModel.value" type="text" class="p-column-filter"
@@ -325,17 +354,17 @@ const downloadPDF = () => {
                         </Column>
                         <Column headerStyle="width:4rem" header="Ações" field="actions">
                             <template #body="{ data }">
-                                <div class="flex justify-around">
+                                <div class="flex justify-center items-center gap-4">
                                     <button @click="openUpdatePeopleModal(data)">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                            stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                            stroke-width="1.5" stroke="currentColor" class="w-6 h-6 hover:scale-125 ease-in-out">
                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                 d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                                         </svg>
                                     </button>
                                     <button @click="openDeletePeopleConfirmModal(data.id)" type="button">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                            stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                            stroke-width="1.5" stroke="currentColor" class="w-6 h-6 hover:scale-125 ease-in-out hover:stroke-red-500">
                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                 d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                                         </svg>

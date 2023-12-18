@@ -1,6 +1,6 @@
 <script setup>
 import { useForm } from 'laravel-precognition-vue-inertia';
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import Calendar from 'primevue/calendar';
 import Textarea from 'primevue/textarea';
 import Dropdown from 'primevue/dropdown';
@@ -71,6 +71,7 @@ const initFilters = () => {
         people: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }] },
         number: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }] },
         description: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }] },
+        date: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] },
         term: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] },
     };
 };
@@ -79,7 +80,10 @@ initFilters();
 
 const clearFilter = () => {
     initFilters();
+    filteredProtocols.value = [];
 };
+
+const filteredProtocols = ref([]);
 
 const formatDate = (value) => {
     return value.toLocaleDateString('pt-BR', {
@@ -105,9 +109,9 @@ const minDateForTerm = ref(new Date());
 const maxDateForTerm = ref(new Date());
 
 minDateForDate.value.setDate(currentDate.getDate() - 90);
-minDateForDate.value.setFullYear(prevYear); // Definir o mínimo para datas retroativas
+minDateForDate.value.setFullYear(prevYear);
 maxDateForDate.value.setFullYear(nextYear);
-minDateForTerm.value.setFullYear(year); // Definir o mínimo para prazo começando a partir de hoje
+minDateForTerm.value.setFullYear(year);
 maxDateForTerm.value.setFullYear(nextYear);
 
 // confg da modal deletar protocolo
@@ -143,22 +147,18 @@ const deleteProtocol = () => {
     });
 };
 
-// lógica da modal editar protocolo
 const protocol = ref();
 const showUpdateProtocolModal = ref(false);
 const formUpdateProtocol = ref(null);
 
-
 const openUpdateProtocolModal = (protocolData) => {
     protocol.value = protocolData;
-    console.log(protocolData);
 
-    // Encontrar o objeto do usuário correspondente no array 'peoples'
     const selectedPeople = props.peoples.find(p => p.name === protocolData.people);
 
     formUpdateProtocol.value = useForm('put', `/atualizar-protocolo/${protocolData.id}`, {
         id: protocolData.id,
-        people_id: selectedPeople || '', // Se não encontrar, atribuir uma string vazia
+        people_id: selectedPeople || '',
         description: protocolData.description,
         date: protocolData.date,
         term: protocolData.term,
@@ -187,28 +187,61 @@ const updateProtocol = () => {
     });
 };
 
-// logica para exportar pdf
-const downloadPDF = () => {
+function formatDatePdf(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("pt-BR");
+}
+
+
+function calculatefilteredProtocols(allProtocols, filters) {
+
+    return allProtocols.filter(protocol => {
+
+        if (filters.people.name && filters.people.name.constraints[0].value) {
+            if (!protocol.people.name.includes(filters.people.name.constraints[0].value)) {
+                return false;
+            }
+        }
+
+        if (filters.description && filters.description.constraints[0].value) {
+            if (!protocol.description.includes(filters.description.constraints[0].value)) {
+                return false;
+            }
+        }
+
+        return true;
+    });
+}
+
+watch(() => props.filters, () => {
+    filteredProtocols.value = calculatefilteredProtocols(props.protocols, dt.value.filters);
+}, { deep: true });
+
+const dt = ref(null);
+
+const downloadPdf = () => {
     const doc = new jsPDF();
 
-    // Adicione cabeçalhos ao PDF
-    const headers = [['people', 'description', 'date', 'term']];
+    const columns = [
+        { header: "ID", dataKey: "id" },
+        { header: "Demandente", dataKey: "people" },
+        { header: "Descrição", dataKey: "description" },
+        { header: "Data", dataKey: "date" },
+        { header: "Prazo", dataKey: "term" },
+    ];
 
+    const tableData = calculatefilteredProtocols(props.protocols, filters.value).map(protocol => ({
+        id: protocol.id,
+        people: protocol.people.name,
+        description: protocol.description,
+        date: formatDatePdf(protocol.date),
+        term: formatDatePdf(protocol.term),
+    }));
 
-    const data = protocols.value.map(protocol => [
-        protocol.people,
-        protocol.description,
-        formatDate(protocol.date),
-        formatDate(protocol.term),
-    ]);
+    doc.text("Relatório de Protocolos", 10, 10);
+    doc.autoTable(columns, tableData);
 
-    doc.autoTable({
-        head: headers,
-        body: data,
-    });
-
-    const fileName = 'protocol_data.pdf';
-    doc.save(fileName);
+    doc.save("Protocolos.pdf");
 };
 </script>
 
@@ -227,28 +260,29 @@ const downloadPDF = () => {
 
 
                     <div class="flex flex-col justify-center items-center">
-                        <button
-                            class="bg-[var(--surface-0)] text-[var(--text-color)] hover:text-[var(--primary-color)] flex justify-center items-center m-8 py-3 px-2 font-bold rounded-lg"
-                            @click="openModal">Criar Protocolo</button>
+                        <Button label="Criar Protocolo"
+                            class="!p-4 bg-[var(--surface-0)] text-[var(--text-color)] hover:text-[var(--primary-color)] flex justify-center items-center m-8 py-3 px-2 font-bold rounded-lg"
+                            @click="openModal" />
                     </div>
-                    <DataTable v-model:filters="filters" :value="protocols" paginator showGridlines :rows="10"
+                    <DataTable ref="dt" v-model:filters="filters" :value="protocols" paginator showGridlines :rows="10"
                         :rowsPerPageOptions="[5, 10, 20, 50]" dataKey="id" scrollable filterDisplay="menu"
                         :globalFilterFields="['people', 'date', 'term', 'description']" removableSort an>
                         <template #header>
-                            <div class="flex justify-between">
+                            <div class="flex flex-col md:flex-row gap-1 md:justify-between">
                                 <Button type="button" class="" label="Limpar" outlined @click="clearFilter()" />
                                 <span>
-                                    <InputText v-model="filters['global'].value" placeholder="Pesquise por Palavra chave" />
+                                    <InputText v-model="filters['global'].value" placeholder="Pesquise por Palavra chave" class="w-full"/>
                                 </span>
-                                <button type="button" @click="downloadPDF" outlined
-                                    class="text-[var(--primary-color)]">Download PDF</button>
+                                <Button type="button" @click="downloadPdf" outlined label="Download PDF"
+                                    class="text-[var(--primary-color)]" />
                             </div>
                         </template>
                         <template #empty> Nenhum protocolo encontrado! </template>
                         <Column field="id" header="ID" style="min-width: 4rem" sortable />
                         <Column field="people" header="Pessoa" style="min-width: 12rem" sortable>
                             <template #body="{ data }">
-                                {{ data.people }}
+                                {{ data.people.length > 100 ? data.people.substring(0, 50) + '...' : data.people }}
+
                             </template>
                             <template #filter="{ filterModel }">
                                 <InputText v-model="filterModel.value" type="text" class="p-column-filter"
@@ -257,7 +291,7 @@ const downloadPDF = () => {
                         </Column>
                         <Column field="description" header="Descrição" style="min-width: 12rem" sortable>
                             <template #body="{ data }">
-                                {{ data.description }}
+                                {{ data.description.length > 100 ? data.description.substring(0, 100) + '...' : data.description }}
                             </template>
                             <template #filter="{ filterModel }">
                                 <InputText v-model="filterModel.value" type="text" class="p-column-filter"
@@ -265,7 +299,8 @@ const downloadPDF = () => {
                             </template>
                         </Column>
 
-                        <Column header="Data" filterField="term" dataType="date" style="min-width: 10rem">
+                        <Column header="Data" filterField="date" field="date" sortable dataType="date"
+                            style="min-width: 10rem">
                             <template #body="{ data }">
                                 {{ formatDate(data.date) }}
                             </template>
@@ -274,7 +309,8 @@ const downloadPDF = () => {
                                     :manualInput="false" />
                             </template>
                         </Column>
-                        <Column header="Prazo" filterField="term" dataType="date" style="min-width: 10rem">
+                        <Column header="Prazo" filterField="term" field="term" sortable dataType="date"
+                            style="min-width: 10rem">
                             <template #body="{ data }">
                                 {{ formatDate(data.term) }}
                             </template>
@@ -285,17 +321,17 @@ const downloadPDF = () => {
                         </Column>
                         <Column header="Ações" field="actions">
                             <template #body="{ data }">
-                                <div class="flex justify-around">
+                                <div class="flex justify-center items-center gap-4">
                                     <button @click="openUpdateProtocolModal(data)">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                            stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                            stroke-width="1.5" stroke="currentColor" class="w-6 h-6 hover:scale-125 ease-in-out">
                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                 d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                                         </svg>
                                     </button>
                                     <button @click="openDeleteProtocolConfirmModal(data.id)">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                            stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                            stroke-width="1.5" stroke="currentColor" class="w-6 h-6 hover:scale-125 ease-in-out hover:stroke-red-500">
                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                 d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                                         </svg>
