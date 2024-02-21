@@ -108,9 +108,11 @@ const maxDateForDate = ref(new Date());
 const minDateForTerm = ref(new Date());
 const maxDateForTerm = ref(new Date());
 
-minDateForDate.value.setDate(currentDate.getDate() - 90);
+minDateForDate.value.setDate(currentDate.getDate() - 30);
 minDateForDate.value.setFullYear(prevYear);
 maxDateForDate.value.setFullYear(nextYear);
+
+maxDateForTerm.value.setDate(currentDate.getDate() + 90); 
 minDateForTerm.value.setFullYear(year);
 maxDateForTerm.value.setFullYear(nextYear);
 
