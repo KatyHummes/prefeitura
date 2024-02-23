@@ -1,5 +1,6 @@
 ## olá, eu sou a @KatyHummes
 
+![Desing preview](./fotos/front end.png)
 
 ## Informações tecnicas:
 

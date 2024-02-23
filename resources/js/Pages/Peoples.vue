@@ -537,7 +537,6 @@ const downloadPdf = () => {
         <div class="p-6 bg-[var(--surface-50)]">
             <form @submit.prevent="CreateSubmit">
                 <div class="grid md:grid-cols-2 gap-4">
-
                     <div class="form-control w-full ">
                         <label class="label">
                             <span class="label-text">Nome:*</span>

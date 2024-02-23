@@ -109,11 +109,11 @@ const minDateForTerm = ref(new Date());
 const maxDateForTerm = ref(new Date());
 
 minDateForDate.value.setDate(currentDate.getDate() - 30);
-minDateForDate.value.setFullYear(prevYear);
+// minDateForDate.value.setFullYear(prevYear);
 maxDateForDate.value.setFullYear(nextYear);
 
 maxDateForTerm.value.setDate(currentDate.getDate() + 90); 
-minDateForTerm.value.setFullYear(year);
+// minDateForTerm.value.setFullYear(year);
 maxDateForTerm.value.setFullYear(nextYear);
 
 // confg da modal deletar protocolo
